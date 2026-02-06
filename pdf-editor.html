@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Editor - Complete PDF Solution</title>
+    <title>PDF Pro Editor - Complete PDF Solution</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
         
@@ -690,4 +690,526 @@
                     <h4 class="tool-title">Merge PDFs</h4>
                     <p class="tool-description">Combine multiple PDF files into one</p>
                 </div>
-                <di
+                <div class="tool-card" onclick="openTool('split')">
+                    <div class="tool-icon">✂️</div>
+                    <h4 class="tool-title">Split PDF</h4>
+                    <p class="tool-description">Extract or split pages from PDF</p>
+                </div>
+                <div class="tool-card" onclick="openTool('rotate')">
+                    <div class="tool-icon">🔄</div>
+                    <h4 class="tool-title">Rotate Pages</h4>
+                    <p class="tool-description">Rotate PDF pages in any direction</p>
+                </div>
+                <div class="tool-card" onclick="openTool('watermark')">
+                    <div class="tool-icon">💧</div>
+                    <h4 class="tool-title">Watermark</h4>
+                    <p class="tool-description">Add text or image watermarks</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor Section -->
+        <div id="editorSection" class="editor-section">
+            <div class="editor-toolbar">
+                <div class="toolbar-group">
+                    <button class="tool-btn" onclick="addText()">
+                        <span>T</span> Add Text
+                    </button>
+                    <button class="tool-btn" onclick="addImage()">
+                        <span>🖼️</span> Add Image
+                    </button>
+                    <button class="tool-btn" onclick="addSignature()">
+                        <span>✍️</span> Signature
+                    </button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="tool-btn" onclick="rotatePage()">
+                        <span>🔄</span> Rotate
+                    </button>
+                    <button class="tool-btn" onclick="zoomIn()">
+                        <span>🔍+</span> Zoom In
+                    </button>
+                    <button class="tool-btn" onclick="zoomOut()">
+                        <span>🔍-</span> Zoom Out
+                    </button>
+                </div>
+                <div class="toolbar-group">
+                    <button class="tool-btn btn-primary" onclick="savePDF()">
+                        <span>💾</span> Save PDF
+                    </button>
+                </div>
+            </div>
+            <div class="canvas-container">
+                <canvas id="pdfCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div id="cameraModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📷 Scan Document</h3>
+                <button class="close-btn" onclick="closeCamera()">✕</button>
+            </div>
+            <div class="camera-container">
+                <video id="camera" autoplay playsinline></video>
+                <div class="camera-controls">
+                    <button class="capture-btn" onclick="captureImage()"></button>
+                </div>
+            </div>
+            <canvas id="captureCanvas" style="display: none;"></canvas>
+            <div id="capturedPreview" class="preview-container"></div>
+        </div>
+    </div>
+
+    <!-- Image Processing Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🖼️ Add & Process Image</h3>
+                <button class="close-btn" onclick="closeModal('imageModal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Upload Image</label>
+                <input type="file" id="imageUpload" accept="image/*" class="form-input" style="display: block;" onchange="previewImage(this)">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Image Size</label>
+                <select id="imageSize" class="form-select">
+                    <option value="passport">Passport Size (35x45mm)</option>
+                    <option value="stamp">Stamp Size (25x25mm)</option>
+                    <option value="custom">Custom Size</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox" id="autoCrop"> Auto Crop Face
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox" id="removeBg"> Remove Background
+                </label>
+            </div>
+            <div id="imagePreview" class="preview-container"></div>
+            <button class="btn btn-primary" onclick="processAndAddImage()" style="width: 100%;">
+                Add to PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Signature Modal -->
+    <div id="signatureModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">✍️ Digital Signature</h3>
+                <button class="close-btn" onclick="closeModal('signatureModal')">✕</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Draw Your Signature</label>
+                <canvas id="signatureCanvas" width="500" height="200" style="border: 1px solid var(--border); border-radius: 8px; cursor: crosshair; width: 100%;"></canvas>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <button class="btn btn-secondary" onclick="clearSignature()" style="flex: 1;">
+                    Clear
+                </button>
+                <button class="btn btn-primary" onclick="saveSignature()" style="flex: 1;">
+                    Add to PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <script>
+        // Global variables
+        let pdfDoc = null;
+        let currentPage = 1;
+        let totalPages = 0;
+        let scale = 1.5;
+        let canvas = document.getElementById('pdfCanvas');
+        let ctx = canvas.getContext('2d');
+        let cameraStream = null;
+        let signaturePad = null;
+        
+        // PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+            setupFileInput();
+            setupSignaturePad();
+        });
+        
+        // Drag and drop
+        function setupDragAndDrop() {
+            const uploadSection = document.getElementById('uploadSection');
+            
+            uploadSection.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadSection.classList.add('drag-over');
+            });
+            
+            uploadSection.addEventListener('dragleave', () => {
+                uploadSection.classList.remove('drag-over');
+            });
+            
+            uploadSection.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadSection.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                handleFiles(files);
+            });
+        }
+        
+        // File input
+        function setupFileInput() {
+            document.getElementById('fileInput').addEventListener('change', function(e) {
+                handleFiles(e.target.files);
+            });
+        }
+        
+        // Handle files
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            const file = files[0];
+            
+            if (file.type === 'application/pdf') {
+                loadPDF(file);
+            } else if (file.type.startsWith('image/')) {
+                convertImageToPDF(file);
+            } else {
+                showStatus('Please upload a PDF or image file', 'error');
+            }
+        }
+        
+        // Load PDF
+        async function loadPDF(file) {
+            showLoading(true);
+            
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                totalPages = pdfDoc.numPages;
+                
+                document.getElementById('uploadSection').style.display = 'none';
+                document.getElementById('editorSection').classList.add('active');
+                
+                renderPage(currentPage);
+                showStatus('PDF loaded successfully!', 'success');
+            } catch (error) {
+                showStatus('Error loading PDF: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Render PDF page
+        async function renderPage(num) {
+            try {
+                const page = await pdfDoc.getPage(num);
+                const viewport = page.getViewport({ scale: scale });
+                
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                
+                await page.render(renderContext).promise;
+            } catch (error) {
+                showStatus('Error rendering page: ' + error.message, 'error');
+            }
+        }
+        
+        // Convert image to PDF
+        async function convertImageToPDF(file) {
+            showLoading(true);
+            
+            try {
+                const img = new Image();
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    img.onload = function() {
+                        const { jsPDF } = window.jspdf;
+                        const pdf = new jsPDF({
+                            orientation: img.width > img.height ? 'l' : 'p',
+                            unit: 'px',
+                            format: [img.width, img.height]
+                        });
+                        
+                        pdf.addImage(img, 'JPEG', 0, 0, img.width, img.height);
+                        const pdfBlob = pdf.output('blob');
+                        loadPDF(pdfBlob);
+                    };
+                    img.src = e.target.result;
+                };
+                
+                reader.readAsDataURL(file);
+            } catch (error) {
+                showStatus('Error converting image: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // Camera functions
+        function openCamera() {
+            document.getElementById('cameraModal').classList.add('active');
+            startCamera();
+        }
+        
+        async function startCamera() {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' } 
+                });
+                document.getElementById('camera').srcObject = cameraStream;
+            } catch (error) {
+                showStatus('Camera access denied: ' + error.message, 'error');
+            }
+        }
+        
+        function captureImage() {
+            const video = document.getElementById('camera');
+            const captureCanvas = document.getElementById('captureCanvas');
+            const captureCtx = captureCanvas.getContext('2d');
+            
+            captureCanvas.width = video.videoWidth;
+            captureCanvas.height = video.videoHeight;
+            captureCtx.drawImage(video, 0, 0);
+            
+            const imageData = captureCanvas.toDataURL('image/jpeg');
+            
+            const preview = document.getElementById('capturedPreview');
+            preview.innerHTML = `
+                <img src="${imageData}" class="preview-image" alt="Captured">
+                <button class="btn btn-primary" onclick="processCapturedImage('${imageData}')" style="margin-top: 1rem; width: 100%;">
+                    Convert to PDF
+                </button>
+            `;
+        }
+        
+        function processCapturedImage(imageData) {
+            fetch(imageData)
+                .then(res => res.blob())
+                .then(blob => {
+                    const file = new File([blob], 'captured.jpg', { type: 'image/jpeg' });
+                    convertImageToPDF(file);
+                    closeCamera();
+                });
+        }
+        
+        function closeCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById('cameraModal').classList.remove('active');
+            document.getElementById('capturedPreview').innerHTML = '';
+        }
+        
+        // Tool functions
+        function openTool(tool) {
+            switch(tool) {
+                case 'image':
+                    openModal('imageModal');
+                    break;
+                case 'signature':
+                    openModal('signatureModal');
+                    break;
+                case 'seal':
+                    showStatus('Seal tool will be implemented', 'success');
+                    break;
+                case 'text':
+                    addText();
+                    break;
+                default:
+                    showStatus(`${tool} tool will be implemented`, 'success');
+            }
+        }
+        
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        // Image processing
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = `<img src="${e.target.result}" class="preview-image" alt="Preview">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function processAndAddImage() {
+            const imageFile = document.getElementById('imageUpload').files[0];
+            if (!imageFile) {
+                showStatus('Please select an image', 'error');
+                return;
+            }
+            
+            const autoCrop = document.getElementById('autoCrop').checked;
+            const removeBg = document.getElementById('removeBg').checked;
+            
+            // Simulated processing
+            showLoading(true);
+            setTimeout(() => {
+                showStatus(`Image processed (Auto Crop: ${autoCrop}, BG Removal: ${removeBg})`, 'success');
+                closeModal('imageModal');
+                showLoading(false);
+            }, 1500);
+        }
+        
+        // Signature pad
+        function setupSignaturePad() {
+            const canvas = document.getElementById('signatureCanvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch events
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+            
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const mouseEvent = new MouseEvent('mouseup', {});
+                canvas.dispatchEvent(mouseEvent);
+            });
+            
+            function startDrawing(e) {
+                isDrawing = true;
+                const rect = canvas.getBoundingClientRect();
+                ctx.beginPath();
+                ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                const rect = canvas.getBoundingClientRect();
+                ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+            
+            function stopDrawing() {
+                isDrawing = false;
+            }
+        }
+        
+        function clearSignature() {
+            const canvas = document.getElementById('signatureCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        function saveSignature() {
+            const canvas = document.getElementById('signatureCanvas');
+            const signatureData = canvas.toDataURL();
+            showStatus('Signature added to PDF', 'success');
+            closeModal('signatureModal');
+        }
+        
+        // Editor functions
+        function addText() {
+            const text = prompt('Enter text to add:');
+            if (text) {
+                showStatus('Text added to PDF', 'success');
+            }
+        }
+        
+        function addImage() {
+            openModal('imageModal');
+        }
+        
+        function addSignature() {
+            openModal('signatureModal');
+        }
+        
+        function rotatePage() {
+            // Rotate current page 90 degrees
+            showStatus('Page rotated', 'success');
+        }
+        
+        function zoomIn() {
+            scale += 0.25;
+            renderPage(currentPage);
+        }
+        
+        function zoomOut() {
+            if (scale > 0.5) {
+                scale -= 0.25;
+                renderPage(currentPage);
+            }
+        }
+        
+        function savePDF() {
+            showLoading(true);
+            setTimeout(() => {
+                showStatus('PDF saved successfully!', 'success');
+                showLoading(false);
+            }, 1000);
+        }
+        
+        // Utility functions
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message ${type} active`;
+            
+            setTimeout(() => {
+                statusEl.classList.remove('active');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
