@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Pro Editor - Complete PDF Solution</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #0F172A;
+            --secondary: #1E293B;
+            --accent: #3B82F6;
+            --accent-hover: #2563EB;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg: #F8FAFC;
+            --surface: #FFFFFF;
+            --text: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --shadow: rgba(15, 23, 42, 0.08);
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Header */
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+        
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* Upload Section */
+        .upload-section {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 3rem;
+            text-align: center;
+            border: 2px dashed var(--border);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .upload-section.drag-over {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+            transform: scale(1.01);
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        
+        .upload-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .upload-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+        }
+        
+        .upload-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--primary);
+            border: 2px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        /* Tools Grid */
+        .tools-section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .tool-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.75rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px var(--shadow);
+            border-color: var(--accent);
+        }
+        
+        .tool-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tool-card:nth-child(1) .tool-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .tool-card:nth-child(2) .tool-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .tool-card:nth-child(3) .tool-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .tool-card:nth-child(4) .tool-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .tool-card:nth-child(5) .tool-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .tool-card:nth-child(6) .tool-icon { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+        .tool-card:nth-child(7) .tool-icon { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .tool-card:nth-child(8) .tool-icon { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+        
+        .tool-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .tool-description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        
+        /* Editor Canvas */
+        .editor-section {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2rem;
+            display: none;
+            margin-bottom: 2rem;
+        }
+        
+        .editor-section.active {
+            display: block;
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .toolbar-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .tool-btn {
+            padding: 0.625rem 1.25rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tool-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .tool-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+        
+        .canvas-container {
+            background: #f0f0f0;
+            border-radius: 16px;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: auto;
+        }
+        
+        #pdfCanvas {
+            max-width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: var(--bg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--primary);
+        }
+        
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Camera Section */
+        .camera-container {
+            position: relative;
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        #camera {
+            width: 100%;
+            display: block;
+        }
+        
+        .camera-controls {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .capture-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid var(--accent);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .capture-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Preview Image */
+        .preview-container {
+            margin-top: 1.5rem;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+            
+            .logo {
+                font-size: 1.25rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .upload-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .upload-title {
+                font-size: 1.5rem;
+            }
+            
+            .upload-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .editor-toolbar {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .toolbar-group {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            
+            .tool-btn {
+                flex: 1;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+        
+        /* Hidden input */
+        input[type="file"] {
+            display: none;
+        }
+        
+        /* Status Messages */
+        .status-message {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .status-message.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .status-message.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">📄</div>
+                <span>PDF Pro Editor</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Status Messages -->
+        <div id="statusMessage" class="status-message"></div>
+
+        <!-- Upload Section -->
+        <div id="uploadSection" class="upload-section">
+            <div class="upload-icon">📁</div>
+            <h2 class="upload-title">Upload Your PDF Document</h2>
+            <p class="upload-subtitle">Drag & drop PDF files here, or click to browse</p>
+            <div class="upload-buttons">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    <span>📂</span> Browse Files
+                </button>
+                <button class="btn btn-secondary" onclick="openCamera()">
+                    <span>📷</span> Scan Document
+                </button>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf,image/*" multiple>
+        </div>
+
+        <!-- Tools Section -->
+        <div class="tools-section">
+            <h3 class="section-title">
+                <span>🛠️</span> Available Tools
+            </h3>
+            <div class="tools-grid">
+                <div class="tool-card" onclick="openTool('image')">
+                    <div class="tool-icon">🖼️</div>
+                    <h4 class="tool-title">Add Images</h4>
+                    <p class="tool-description">Insert passport size photos with auto crop and background removal</p>
+                </div>
+                <div class="tool-card" onclick="openTool('signature')">
+                    <div class="tool-icon">✍️</div>
+                    <h4 class="tool-title">Digital Signature</h4>
+                    <p class="tool-description">Add your digital signature to documents</p>
+                </div>
+                <div class="tool-card" onclick="openTool('seal')">
+                    <div class="tool-icon">🏛️</div>
+                    <h4 class="tool-title">Official Seal</h4>
+                    <p class="tool-description">Add official seals and stamps</p>
+                </div>
+                <div class="tool-card" onclick="openTool('text')">
+                    <div class="tool-icon">📝</div>
+                    <h4 class="tool-title">Add Text</h4>
+                    <p class="tool-description">Insert and edit text anywhere in the PDF</p>
+                </div>
+                <div class="tool-card" onclick="openTool('merge')">
+                    <div class="tool-icon">🔗</div>
+                    <h4 class="tool-title">Merge PDFs</h4>
+                    <p class="tool-description">Combine multiple PDF files into one</p>
+                </div>
+                <di
